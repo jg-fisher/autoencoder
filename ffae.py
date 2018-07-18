@@ -8,15 +8,7 @@ import numpy as np
 # this is the size of our encoded representations
 encoding_dim = 3
 
-x = np.array([[1,2,3],
-              [1,2,3],
-              [1,2,3],
-              [1,2,3],
-              [1,2,3],
-              [1,2,3],
-              [1,2,3],
-              [1,2,3],
-              [1,2,3]])
+x = np.array([[1,2,3] for _ in range(10)])
 
 inputs = Input(shape=(3,))
 encoded = Dense(encoding_dim, activation='relu')(inputs)
