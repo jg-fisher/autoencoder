@@ -6,15 +6,17 @@ import numpy as np
 from tensorflow import set_random_seed
 import os
 
+def seedy(s):
+    np.random.seed(s)
+    set_random_seed(s)
+
 class AutoEncoder:
     def __init__(self, encoding_dim=3):
         self.encoding_dim = encoding_dim
-        self.x = np.array([[1,2,3] for _ in range(10)])
+        r = lambda: np.random.randint(1, 3)
+        self.x = np.array([[r(),r(),r()] for _ in range(1000)])
+        print(self.x)
 
-    def seedy(self, s):
-        np.random.seed(s)
-        set_random_seed(s)
-    
     def _encoder(self):
         inputs = Input(shape=(self.x[0].shape))
         encoded = Dense(self.encoding_dim, activation='relu')(inputs)
@@ -41,16 +43,16 @@ class AutoEncoder:
         self.model = model
         return model
 
-    def fit(self, epochs=300):
-        self.model.compile(optimizer='adadelta', loss='mse')
-        log_dir = './tmp'
+    def fit(self, batch_size=10, epochs=300):
+        self.model.compile(optimizer='sgd', loss='mse')
+        log_dir = './log/'
         tbCallBack = keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=0, write_graph=True, write_images=True)
         self.model.fit(self.x, self.x,
                         epochs=epochs,
-                        batch_size=4,
+                        batch_size=batch_size,
                         callbacks=[tbCallBack])
 
-    def save_weights(self):
+    def save(self):
         if not os.path.exists(r'./weights'):
             os.mkdir(r'./weights')
         else:
@@ -60,8 +62,8 @@ class AutoEncoder:
         
 
 if __name__ == '__main__':
+    seedy(2)
     ae = AutoEncoder(encoding_dim=2)
-    ae.seedy(3)
     ae.encoder_decoder()
-    ae.fit()
-    ae.save_weights()
+    ae.fit(batch_size=50, epochs=300)
+    ae.save()
